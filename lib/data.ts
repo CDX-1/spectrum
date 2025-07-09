@@ -56,11 +56,6 @@ export class Server {
 
     static of(name: string, desc: string, pinned: boolean, software: string, version: string, port: number, created_at: number, last_started: number) {
         const server = new Server(crypto.randomUUID(), name, desc, pinned, software, version, port, created_at, last_started);
-        if (Server.cache === null) {
-            Server.cache = [];
-        } else {
-            Server.cache.push(server);
-        }
         return server;
     }
 
@@ -78,33 +73,26 @@ export class Server {
             json.last_started
         );
     }
-
-    static cache: Server[] | null = null;
 }
 
 export async function getServers(): Promise<Server[]> {
-    if (Server.cache === null) {
-        if (!await exists('servers', {
-            baseDir: BaseDirectory.AppLocalData
-        })) {
-            return [];
-        }
-    
-        const entries = await readDir('servers', { baseDir: BaseDirectory.AppLocalData });
-        const serverFiles = entries.filter(entry => entry.isFile && entry.name.toLowerCase().endsWith(".server.json"));
-        
-        const servers = await Promise.all(
-            serverFiles.map(async (entry) => {
-                const content = await readTextFile(`servers/${entry.name}`, {
-                    baseDir: BaseDirectory.AppLocalData
-                });
-                return Server.fromJSON(JSON.parse(content));
-            })
-        );
-    
-        Server.cache = servers;
-        return servers;
-    } else {
-        return Server.cache;
+    if (!await exists('servers', {
+        baseDir: BaseDirectory.AppLocalData
+    })) {
+        return [];
     }
+
+    const entries = await readDir('servers', { baseDir: BaseDirectory.AppLocalData });
+    const serverFiles = entries.filter(entry => entry.isFile && entry.name.toLowerCase().endsWith(".server.json"));
+    
+    const servers = await Promise.all(
+        serverFiles.map(async (entry) => {
+            const content = await readTextFile(`servers/${entry.name}`, {
+                baseDir: BaseDirectory.AppLocalData
+            });
+            return Server.fromJSON(JSON.parse(content));
+        })
+    );
+
+    return servers;
 }

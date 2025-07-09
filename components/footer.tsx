@@ -13,8 +13,7 @@ export default function Footer() {
             className="flex space-x-2 items-center"
         >
             <p
-                className="font-medium text-xs"
-                style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                className="font-medium text-xs font-times"
             >
                 Developed by CDX
             </p>

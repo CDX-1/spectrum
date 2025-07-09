@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { DialogTitle, DialogContent, DialogHeader, DialogDescription, DialogFooter, DialogClose } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -11,8 +11,13 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils";
 import { Server } from "@/lib/data";
 import { toast } from "sonner";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
-export default function ServerCreate() {
+type ServerCreateProps = {
+    refreshServers?: () => void;
+};
+
+export default function ServerCreate({ refreshServers }: ServerCreateProps): React.ReactNode {
     const [name, setName] = useState("");
     const [desc, setDesc] = useState("");
     const [isSoftwareOpen, setSoftwareOpen] = useState(false);
@@ -59,22 +64,22 @@ export default function ServerCreate() {
             toast.error("Server name is required!");
             return;
         }
-        
+
         if (desc.trim() === "") {
             toast.error("Server description is required!");
             return;
         }
-        
+
         if (software === "") {
             toast.error("Please select a server software!");
             return;
         }
-        
+
         if (version === "") {
             toast.error("Please select a version!");
             return;
         }
-        
+
         if (port.trim() === "" || isNaN(parseInt(port))) {
             toast.error("Please enter a valid port number!");
             return;
@@ -218,7 +223,13 @@ export default function ServerCreate() {
                 <DialogClose asChild>
                     <Button variant="outline" onClick={reset}>Cancel</Button>
                 </DialogClose>
-                <Button type="submit" onClick={() => create()}>Create</Button>
+                <DialogTrigger asChild>
+                    <Button type="submit" onClick={() => {
+                        create();
+                        reset();
+                        refreshServers?.();
+                    }}>Create</Button>
+                </DialogTrigger>
             </DialogFooter>
         </DialogContent>
     );

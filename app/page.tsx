@@ -52,11 +52,15 @@ export function useServers() {
 }
 
 export default function Home() {
-	const { servers, loading, error } = useServers()
+	const { servers, loading, error, refreshServers } = useServers()
+
+	useEffect(() => {
+		refreshServers();
+	}, [refreshServers]);
 
 	return (
-		<div className="flex flex-col items-center justify-center h-screen space-y-4 mb-10">
-			<Header />
+		<div className="flex flex-col items-center justify-center space-y-6" style={{ minHeight: "calc(100vh - 2.5rem)" }}>
+			<Header refreshServers={refreshServers} />
 			<div className="flex flex-col space-y-3 w-2xl">
 				{servers.map((server, i) => (
 					<ServerCard key={server.id} server={server} index={i} />
@@ -68,7 +72,6 @@ export default function Home() {
 						className="text-md font-medium"
 						delay={200}
 						duration={50}
-						style={{ fontFamily: '"Times New Roman", Times, serif' }}
 					>
 						You have no servers! Try making some!
 					</TypingAnimation>
@@ -79,7 +82,6 @@ export default function Home() {
 					className="text-md font-medium"
 					delay={200}
 					duration={50}
-					style={{ fontFamily: '"Times New Roman", Times, serif' }}
 				>
 					{error}
 				</TypingAnimation>
